@@ -1,0 +1,1 @@
+- [Local-first SQLite](sqlite-local-first.md) — HusStand Hub persists in a local SQLite file to keep the Raspberry Pi migration frictionless.

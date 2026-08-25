@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "HusStand Hub"
+description = "En touch-vennlig hjem-administrasjonsapp for ukemeny, oppskrifter og fremtidige familie- og husmoduler, laget for nettbrett på veggen og lokal drift på Raspberry Pi."
+version = "1.0.0"
+id = "artifacts/husstand-hub"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 24486
+
+[services.development]
+run = "pnpm --filter @workspace/husstand-hub run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/husstand-hub", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/husstand-hub/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "24486"
+BASE_PATH = "/"
