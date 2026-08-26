@@ -32,9 +32,9 @@ router.get("/dashboard", async (_req, res): Promise<void> => {
       SELECT shopping_items.id, shopping_items.name, shopping_items.category, shopping_items.completed
       FROM shopping_items
       JOIN shopping_lists ON shopping_lists.id = shopping_items.list_id
-      WHERE shopping_lists.archived = 0
-      ORDER BY shopping_items.completed, shopping_items.sort_order
-      LIMIT 4
+       WHERE shopping_lists.archived = 0 AND shopping_items.completed = 0
+       ORDER BY shopping_items.sort_order, shopping_items.id
+       LIMIT 5
     `)
     .all()
     .map((item) => ({

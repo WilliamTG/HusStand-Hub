@@ -30,7 +30,10 @@ const plansForRange = (start: string, end: string): RawMealPlan[] =>
     .all(start, end) as unknown as RawMealPlan[];
 
 router.get("/meal-plans", async (req, res): Promise<void> => {
-  const parsed = ListMealPlansQueryParams.safeParse(req.query);
+  const weekStart = typeof req.query.weekStart === "string" ? req.query.weekStart : undefined;
+  const parsed = ListMealPlansQueryParams.safeParse({
+    weekStart: weekStart ? new Date(weekStart) : undefined,
+  });
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
     return;
