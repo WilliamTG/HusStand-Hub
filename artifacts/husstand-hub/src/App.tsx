@@ -16,6 +16,7 @@ import Dashboard from '@/pages/dashboard';
 import MealPlanPage from '@/pages/meal-plan';
 import RecipesPage from '@/pages/recipes';
 import RecipeEditPage from '@/pages/recipe-edit';
+import ShoppingPage from '@/pages/shopping';
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,7 @@ function Router() {
           <Route path="/meal-plan" component={MealPlanPage} />
           <Route path="/recipes" component={RecipesPage} />
           <Route path="/recipes/:id" component={RecipeEditPage} />
+          <Route path="/shopping" component={ShoppingPage} />
           <Route component={NotFound} />
         </Switch>
       </Shell>

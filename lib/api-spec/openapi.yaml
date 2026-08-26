@@ -16,6 +16,8 @@ tags:
     description: Weekly meal planning
   - name: recipes
     description: Recipe management
+  - name: shopping
+    description: Active household shopping list
 paths:
   /healthz:
     get:
@@ -203,6 +205,88 @@ paths:
           description: Recipe deleted
         "404":
           description: Recipe not found
+  /shopping-items:
+    get:
+      operationId: listShoppingItems
+      tags: [shopping]
+      summary: List items in the active shopping list
+      responses:
+        "200":
+          description: Shopping list items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ShoppingItem"
+    post:
+      operationId: createShoppingItem
+      tags: [shopping]
+      summary: Add an item to the active shopping list
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ShoppingItemInput"
+      responses:
+        "201":
+          description: Created shopping item
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShoppingItem"
+  /shopping-items/import-week:
+    post:
+      operationId: importWeeklyIngredients
+      tags: [shopping]
+      summary: Add linked recipe ingredients from a meal-plan week
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WeekImportInput"
+      responses:
+        "200":
+          description: Import result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WeekImportResult"
+  /shopping-items/{id}:
+    patch:
+      operationId: updateShoppingItem
+      tags: [shopping]
+      summary: Update a shopping item
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ShoppingItemUpdate"
+      responses:
+        "200":
+          description: Updated shopping item
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShoppingItem"
+        "404":
+          description: Shopping item not found
+    delete:
+      operationId: deleteShoppingItem
+      tags: [shopping]
+      summary: Remove a shopping item
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "204":
+          description: Shopping item removed
+        "404":
+          description: Shopping item not found
 components:
   parameters:
     Id:
@@ -407,4 +491,68 @@ components:
             type: string
         favorite:
           type: boolean
+    ShoppingItem:
+      type: object
+      required: [id, name, quantity, category, completed, sourceRecipeId, sortOrder]
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+        quantity:
+          type: [string, "null"]
+        category:
+          type: string
+        completed:
+          type: boolean
+        sourceRecipeId:
+          type: [number, "null"]
+        sortOrder:
+          type: number
+    ShoppingItemInput:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        quantity:
+          type: [string, "null"]
+        category:
+          type: string
+          minLength: 1
+        sortOrder:
+          type: number
+    ShoppingItemUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        quantity:
+          type: [string, "null"]
+        category:
+          type: string
+          minLength: 1
+        completed:
+          type: boolean
+        sortOrder:
+          type: number
+    WeekImportInput:
+      type: object
+      required: [weekStart]
+      properties:
+        weekStart:
+          type: string
+          format: date
+    WeekImportResult:
+      type: object
+      required: [added, skipped, message]
+      properties:
+        added:
+          type: number
+        skipped:
+          type: number
+        message:
+          type: string
 

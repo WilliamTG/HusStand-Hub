@@ -176,6 +176,49 @@ export interface RecipeUpdate {
   favorite?: boolean;
 }
 
+export interface ShoppingItem {
+  id: number;
+  name: string;
+  /** @nullable */
+  quantity: string | null;
+  category: string;
+  completed: boolean;
+  /** @nullable */
+  sourceRecipeId: number | null;
+  sortOrder: number;
+}
+
+export interface ShoppingItemInput {
+  /** @minLength 1 */
+  name: string;
+  /** @nullable */
+  quantity?: string | null;
+  /** @minLength 1 */
+  category?: string;
+  sortOrder?: number;
+}
+
+export interface ShoppingItemUpdate {
+  /** @minLength 1 */
+  name?: string;
+  /** @nullable */
+  quantity?: string | null;
+  /** @minLength 1 */
+  category?: string;
+  completed?: boolean;
+  sortOrder?: number;
+}
+
+export interface WeekImportInput {
+  weekStart: string;
+}
+
+export interface WeekImportResult {
+  added: number;
+  skipped: number;
+  message: string;
+}
+
 export type ListMealPlansParams = {
 weekStart?: string;
 };

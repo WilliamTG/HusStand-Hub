@@ -21,6 +21,16 @@ type RawRecipe = {
   favorite: number;
 };
 
+type RawShoppingItem = {
+  id: number;
+  name: string;
+  quantity: string | null;
+  category: string;
+  completed: number;
+  source_recipe_id: number | null;
+  sort_order: number;
+};
+
 export const currentWeek = (): { start: string; end: string } => {
   const now = new Date();
   const weekday = now.getDay() || 7;
@@ -75,4 +85,14 @@ export const toRecipe = (recipe: RawRecipe) => ({
   favorite: Boolean(recipe.favorite),
 });
 
-export type { RawMealPlan, RawRecipe };
+export const toShoppingItem = (item: RawShoppingItem) => ({
+  id: item.id,
+  name: item.name,
+  quantity: item.quantity,
+  category: item.category,
+  completed: Boolean(item.completed),
+  sourceRecipeId: item.source_recipe_id,
+  sortOrder: item.sort_order,
+});
+
+export type { RawMealPlan, RawRecipe, RawShoppingItem };

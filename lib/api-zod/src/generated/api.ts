@@ -270,3 +270,97 @@ export const DeleteRecipeParams = zod.object({
 export const DeleteRecipeResponse = zod.void()
 
 
+/**
+ * @summary List items in the active shopping list
+ */
+export const ListShoppingItemsResponseItem = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "quantity": zod.string().nullable(),
+  "category": zod.string(),
+  "completed": zod.boolean(),
+  "sourceRecipeId": zod.number().nullable(),
+  "sortOrder": zod.number()
+})
+export const ListShoppingItemsResponse = zod.array(ListShoppingItemsResponseItem)
+
+
+/**
+ * @summary Add an item to the active shopping list
+ */
+
+
+
+
+export const CreateShoppingItemBody = zod.object({
+  "name": zod.string().min(1),
+  "quantity": zod.string().nullish(),
+  "category": zod.string().min(1).optional(),
+  "sortOrder": zod.number().optional()
+})
+
+export const CreateShoppingItemResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "quantity": zod.string().nullable(),
+  "category": zod.string(),
+  "completed": zod.boolean(),
+  "sourceRecipeId": zod.number().nullable(),
+  "sortOrder": zod.number()
+})
+
+
+/**
+ * @summary Add linked recipe ingredients from a meal-plan week
+ */
+export const ImportWeeklyIngredientsBody = zod.object({
+  "weekStart": zod.coerce.date()
+})
+
+export const ImportWeeklyIngredientsResponse = zod.object({
+  "added": zod.number(),
+  "skipped": zod.number(),
+  "message": zod.string()
+})
+
+
+/**
+ * @summary Update a shopping item
+ */
+export const UpdateShoppingItemParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+
+
+
+
+export const UpdateShoppingItemBody = zod.object({
+  "name": zod.string().min(1).optional(),
+  "quantity": zod.string().nullish(),
+  "category": zod.string().min(1).optional(),
+  "completed": zod.boolean().optional(),
+  "sortOrder": zod.number().optional()
+})
+
+export const UpdateShoppingItemResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "quantity": zod.string().nullable(),
+  "category": zod.string(),
+  "completed": zod.boolean(),
+  "sourceRecipeId": zod.number().nullable(),
+  "sortOrder": zod.number()
+})
+
+
+/**
+ * @summary Remove a shopping item
+ */
+export const DeleteShoppingItemParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeleteShoppingItemResponse = zod.void()
+
+

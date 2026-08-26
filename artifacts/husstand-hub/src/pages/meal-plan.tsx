@@ -1,9 +1,10 @@
 import * as React from "react"
 import { useState } from "react"
-import { useListMealPlans, useCreateMealPlan, useUpdateMealPlan, useDeleteMealPlan, useListRecipes } from "@workspace/api-client-react"
+import { useListMealPlans, useCreateMealPlan, useUpdateMealPlan, useDeleteMealPlan, useListRecipes, useImportWeeklyIngredients, getGetDashboardQueryKey, getListShoppingItemsQueryKey } from "@workspace/api-client-react"
 import { getListMealPlansQueryKey } from "@workspace/api-client-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { format, startOfWeek, addDays, parseISO } from "date-fns"
+import { nb } from "date-fns/locale"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -11,7 +12,8 @@ import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Plus, ChefHat, CalendarDays, MoreVertical, Trash2, Edit2, Info } from "lucide-react"
+import { Plus, ChefHat, CalendarDays, Trash2, Edit2, Info, ShoppingCart } from "lucide-react"
+import { useToast } from "@/hooks/use-toast"
 
 export default function MealPlanPage() {
   const queryClient = useQueryClient()
@@ -20,10 +22,12 @@ export default function MealPlanPage() {
   
   const { data: mealPlans, isLoading } = useListMealPlans({ weekStart: weekStartStr })
   const { data: recipes } = useListRecipes()
+  const { toast } = useToast()
   
   const createMeal = useCreateMealPlan()
   const updateMeal = useUpdateMealPlan()
   const deleteMeal = useDeleteMealPlan()
+  const importIngredients = useImportWeeklyIngredients()
 
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [selectedDate, setSelectedDate] = useState<string>("")
@@ -34,7 +38,7 @@ export default function MealPlanPage() {
     const d = addDays(parseISO(weekStartStr), i)
     return {
       date: format(d, 'yyyy-MM-dd'),
-      dayName: format(d, 'EEEE'),
+      dayName: format(d, 'EEEE', { locale: nb }),
       dayNum: format(d, 'd')
     }
   })
@@ -85,6 +89,29 @@ export default function MealPlanPage() {
     }
   }
 
+  const handleImportIngredients = () => {
+    importIngredients.mutate(
+      { data: { weekStart: weekStartStr } },
+      {
+        onSuccess: (result) => {
+          toast({
+            title: "Handleliste oppdatert",
+            description: result.message || `La til ${result.added} nye ingredienser. (Hoppet over ${result.skipped} eksisterende).`,
+          })
+          queryClient.invalidateQueries({ queryKey: getGetDashboardQueryKey() })
+          queryClient.invalidateQueries({ queryKey: getListShoppingItemsQueryKey() })
+        },
+        onError: () => {
+          toast({
+            title: "Feil",
+            description: "Kunne ikke importere ingredienser.",
+            variant: "destructive"
+          })
+        }
+      }
+    )
+  }
+
   if (isLoading) {
     return (
       <div className="space-y-8">
@@ -102,10 +129,18 @@ export default function MealPlanPage() {
         <div>
           <h1 className="text-4xl font-bold font-display text-foreground flex items-center gap-3">
             <CalendarDays className="w-8 h-8 text-primary" />
-            Weekly Meal Plan
+            Ukemeny
           </h1>
-          <p className="text-xl text-muted-foreground mt-2">Week of {format(parseISO(weekStartStr), 'MMMM do, yyyy')}</p>
+          <p className="text-xl text-muted-foreground mt-2">Uke fra {format(parseISO(weekStartStr), 'd. MMMM yyyy', { locale: nb })}</p>
         </div>
+        <Button
+          onClick={handleImportIngredients}
+          disabled={importIngredients.isPending}
+          className="rounded-xl h-12 px-6 text-lg"
+        >
+          <ShoppingCart className="w-5 h-5 mr-2" />
+          {importIngredients.isPending ? 'Importerer...' : 'Legg ukesmenyens ingredienser i handlelisten'}
+        </Button>
       </header>
 
       <div className="space-y-4">
@@ -119,7 +154,7 @@ export default function MealPlanPage() {
                 <div className={`p-6 w-full md:w-32 shrink-0 flex md:flex-col items-center md:items-start justify-between md:justify-center border-b md:border-b-0 md:border-r border-border/50 ${isToday ? 'bg-primary text-primary-foreground' : 'bg-secondary'}`}>
                   <span className="font-semibold text-sm uppercase tracking-widest opacity-80">{day.dayName.substring(0,3)}</span>
                   <span className="text-3xl font-bold font-display">{day.dayNum}</span>
-                  {isToday && <Badge variant="secondary" className="md:mt-2 text-xs bg-white text-primary">Today</Badge>}
+                  {isToday && <Badge variant="secondary" className="md:mt-2 text-xs bg-white text-primary">I dag</Badge>}
                 </div>
                 
                 <div className="flex-1 p-6 flex flex-col justify-center min-h-[120px]">
@@ -131,7 +166,7 @@ export default function MealPlanPage() {
                             <div className="flex items-center gap-3 mb-1">
                               <h3 className="text-2xl font-bold font-display">{meal.title}</h3>
                               <Badge variant={meal.status === 'cooked' ? 'accent' : 'outline'} className="text-xs">
-                                {meal.status}
+                                {meal.status === 'cooked' ? 'Laget' : meal.status === 'planned' ? 'Planlagt' : 'Hoppet over'}
                               </Badge>
                             </div>
                             <div className="flex gap-4 text-muted-foreground">
@@ -156,9 +191,9 @@ export default function MealPlanPage() {
                     </div>
                   ) : (
                     <div className="flex justify-between items-center text-muted-foreground">
-                      <span className="text-lg italic opacity-70">No meals planned</span>
+                      <span className="text-lg italic opacity-70">Ingen måltider planlagt</span>
                       <Button variant="secondary" onClick={() => openAddMeal(day.date)} className="rounded-xl font-semibold">
-                        <Plus className="w-5 h-5 mr-2" /> Add Meal
+                        <Plus className="w-5 h-5 mr-2" /> Legg til
                       </Button>
                     </div>
                   )}
@@ -180,31 +215,31 @@ export default function MealPlanPage() {
       <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editData?.id ? "Edit Meal" : "Add Meal to Plan"}</DialogTitle>
+            <DialogTitle>{editData?.id ? "Rediger måltid" : "Legg til måltid"}</DialogTitle>
           </DialogHeader>
           {editData && (
             <div className="space-y-6 py-4">
               <div className="space-y-2">
-                <label className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Meal Title</label>
+                <label className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Måltidsnavn</label>
                 <Input 
                   value={editData.title} 
                   onChange={e => setEditData({...editData, title: e.target.value})}
-                  placeholder="e.g. Pasta Bolognese"
+                  placeholder="f.eks. Pasta Bolognese"
                   autoFocus
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Link Recipe (Optional)</label>
+                <label className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Koble til oppskrift (Valgfritt)</label>
                 <Select 
                   value={editData.recipeId?.toString() || "none"}
                   onValueChange={val => setEditData({...editData, recipeId: val === "none" ? null : parseInt(val)})}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select a recipe" />
+                    <SelectValue placeholder="Velg en oppskrift" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">-- No Recipe --</SelectItem>
+                    <SelectItem value="none">-- Ingen oppskrift --</SelectItem>
                     {recipes?.map(r => (
                       <SelectItem key={r.id} value={r.id.toString()}>{r.name}</SelectItem>
                     ))}
@@ -221,9 +256,9 @@ export default function MealPlanPage() {
                   >
                     <SelectTrigger><SelectValue/></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="dinner">Dinner</SelectItem>
-                      <SelectItem value="lunch">Lunch</SelectItem>
-                      <SelectItem value="breakfast">Breakfast</SelectItem>
+                      <SelectItem value="dinner">Middag</SelectItem>
+                      <SelectItem value="lunch">Lunsj</SelectItem>
+                      <SelectItem value="breakfast">Frokost</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -235,27 +270,27 @@ export default function MealPlanPage() {
                   >
                     <SelectTrigger><SelectValue/></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="planned">Planned</SelectItem>
-                      <SelectItem value="cooked">Cooked</SelectItem>
-                      <SelectItem value="skipped">Skipped</SelectItem>
+                      <SelectItem value="planned">Planlagt</SelectItem>
+                      <SelectItem value="cooked">Laget</SelectItem>
+                      <SelectItem value="skipped">Hoppet over</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Note</label>
+                <label className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Notat</label>
                 <Input 
                   value={editData.note || ""} 
                   onChange={e => setEditData({...editData, note: e.target.value})}
-                  placeholder="e.g. Use leftover sauce"
+                  placeholder="f.eks. Bruk rester fra i går"
                 />
               </div>
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditModalOpen(false)}>Cancel</Button>
-            <Button onClick={handleSave} disabled={!editData?.title?.trim() || createMeal.isPending || updateMeal.isPending}>Save Meal</Button>
+            <Button variant="outline" onClick={() => setEditModalOpen(false)}>Avbryt</Button>
+            <Button onClick={handleSave} disabled={!editData?.title?.trim() || createMeal.isPending || updateMeal.isPending}>Lagre måltid</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

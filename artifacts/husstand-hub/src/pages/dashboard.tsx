@@ -186,7 +186,7 @@ export default function Dashboard() {
               <ul className="space-y-4">
                 {dashboard.shoppingPreview.length > 0 ? (
                   dashboard.shoppingPreview.map(item => (
-                    <li key={item.id} className="flex items-center gap-4 p-3 rounded-xl hover:bg-secondary transition-colors cursor-pointer">
+                    <li key={item.id} className="flex items-center gap-4 p-3 rounded-xl hover:bg-secondary transition-colors cursor-pointer" onClick={() => setLocation("/shopping")}>
                       {item.completed ? (
                         <CheckCircle2 className="w-7 h-7 text-primary shrink-0" />
                       ) : (
@@ -200,13 +200,16 @@ export default function Dashboard() {
                   ))
                 ) : (
                   <li className="text-center py-8 text-muted-foreground text-lg">
-                    Nothing on the list!
+                    Ingenting på listen!
                   </li>
                 )}
               </ul>
               {dashboard.shoppingPreview.length > 0 && (
                 <div className="mt-6">
-                  <div className="w-full text-center text-primary font-medium p-3 rounded-xl hover:bg-secondary cursor-pointer transition-colors text-lg">
+                  <div
+                    onClick={() => setLocation("/shopping")}
+                    className="w-full text-center text-primary font-medium p-3 rounded-xl hover:bg-secondary cursor-pointer transition-colors text-lg"
+                  >
                     Se hele listen
                   </div>
                 </div>
