@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter"
-import { Home, CalendarDays, BookOpen, UtensilsCrossed, Settings, ShoppingCart } from "lucide-react"
+import { Home, CalendarDays, BookOpen, UtensilsCrossed, Settings, ShoppingCart, Baby } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export function Shell({ children }: { children: React.ReactNode }) {
@@ -7,6 +7,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
 
   const navItems = [
     { href: "/", icon: Home, label: "Hjem" },
+    { href: "/daycare", icon: Baby, label: "Barnehage" },
     { href: "/meal-plan", icon: CalendarDays, label: "Middagsplan" },
     { href: "/shopping", icon: ShoppingCart, label: "Handleliste" },
     { href: "/recipes", icon: BookOpen, label: "Oppskrifter" },

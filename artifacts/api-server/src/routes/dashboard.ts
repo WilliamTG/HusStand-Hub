@@ -2,6 +2,7 @@ import { Router, type IRouter } from "express";
 import { GetDashboardResponse } from "@workspace/api-zod";
 import { sqlite } from "@workspace/db";
 import { currentWeek, toMealPlan, type RawMealPlan } from "./household-helpers";
+import { getDaycareSummary } from "../lib/daycare";
 
 const router: IRouter = Router();
 
@@ -42,9 +43,39 @@ router.get("/dashboard", async (_req, res): Promise<void> => {
       completed: Boolean((item as { completed: number }).completed),
     }));
 
-  const pendingDaycare = sqlite
-    .prepare("SELECT COUNT(*) AS count FROM daycare_items WHERE status != 'ready'")
-    .get() as { count: number };
+  const daycare = getDaycareSummary();
+  const lastDiaperDelivery = daycare.lastDiaperDeliveryDate
+    ? new Intl.DateTimeFormat("nb-NO", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      }).format(new Date(`${daycare.lastDiaperDeliveryDate}T12:00:00`))
+    : null;
+  const nurseryStatus = daycare.needsDiapers
+    ? {
+        label: "Barnehagen trenger bleier",
+        detail: lastDiaperDelivery
+          ? `Sist levert ${lastDiaperDelivery}`
+          : "Barnehagen har bedt om påfyll",
+        tone: "attention" as const,
+      }
+    : daycare.needsClothing
+      ? {
+          label: "Skiftetøy må fylles på",
+          detail: "Husk et nytt komplett skift",
+          tone: "attention" as const,
+        }
+      : daycare.openItemCount > 0
+        ? {
+            label: "Morgensjekk gjenstår",
+            detail: `${daycare.openItemCount} ting må sjekkes før avreise`,
+            tone: "neutral" as const,
+          }
+        : {
+            label: "Barnehagen er klar",
+            detail: "Alt på morgenlisten er sjekket",
+            tone: "ok" as const,
+          };
 
   const dateLabel = new Intl.DateTimeFormat("nb-NO", {
     weekday: "long",
@@ -61,10 +92,7 @@ router.get("/dashboard", async (_req, res): Promise<void> => {
         : null,
       weekMenu: menu.map(toMealPlan),
       shoppingPreview,
-      nurseryStatus:
-        pendingDaycare.count === 0
-          ? { label: "Barnehagen er klar", detail: "Skiftetøy er kontrollert", tone: "ok" }
-          : { label: "Barnehagen trenger sjekk", detail: `${pendingDaycare.count} ting venter`, tone: "attention" },
+      nurseryStatus,
     }),
   );
 });
