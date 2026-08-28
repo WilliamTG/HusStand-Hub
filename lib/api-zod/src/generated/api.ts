@@ -270,3 +270,296 @@ export const DeleteRecipeParams = zod.object({
 export const DeleteRecipeResponse = zod.void()
 
 
+/**
+ * @summary List items in the active shopping list
+ */
+export const ListShoppingItemsResponseItem = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "quantity": zod.string().nullable(),
+  "category": zod.string(),
+  "completed": zod.boolean(),
+  "sourceRecipeId": zod.number().nullable(),
+  "sortOrder": zod.number()
+})
+export const ListShoppingItemsResponse = zod.array(ListShoppingItemsResponseItem)
+
+
+/**
+ * @summary Add an item to the active shopping list
+ */
+
+
+
+
+export const CreateShoppingItemBody = zod.object({
+  "name": zod.string().min(1),
+  "quantity": zod.string().nullish(),
+  "category": zod.string().min(1).optional(),
+  "sortOrder": zod.number().optional()
+})
+
+export const CreateShoppingItemResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "quantity": zod.string().nullable(),
+  "category": zod.string(),
+  "completed": zod.boolean(),
+  "sourceRecipeId": zod.number().nullable(),
+  "sortOrder": zod.number()
+})
+
+
+/**
+ * @summary Add linked recipe ingredients from a meal-plan week
+ */
+export const ImportWeeklyIngredientsBody = zod.object({
+  "weekStart": zod.coerce.date()
+})
+
+export const ImportWeeklyIngredientsResponse = zod.object({
+  "added": zod.number(),
+  "skipped": zod.number(),
+  "message": zod.string()
+})
+
+
+/**
+ * @summary Update a shopping item
+ */
+export const UpdateShoppingItemParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+
+
+
+
+export const UpdateShoppingItemBody = zod.object({
+  "name": zod.string().min(1).optional(),
+  "quantity": zod.string().nullish(),
+  "category": zod.string().min(1).optional(),
+  "completed": zod.boolean().optional(),
+  "sortOrder": zod.number().optional()
+})
+
+export const UpdateShoppingItemResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "quantity": zod.string().nullable(),
+  "category": zod.string(),
+  "completed": zod.boolean(),
+  "sourceRecipeId": zod.number().nullable(),
+  "sortOrder": zod.number()
+})
+
+
+/**
+ * @summary Remove a shopping item
+ */
+export const DeleteShoppingItemParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeleteShoppingItemResponse = zod.void()
+
+
+/**
+ * @summary Get the daycare morning checklist
+ */
+export const GetDaycareResponse = zod.object({
+  "date": zod.coerce.date(),
+  "childName": zod.string(),
+  "daycareName": zod.string().nullable(),
+  "items": zod.array(zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "category": zod.enum(['essential', 'clothing', 'other']),
+  "recurring": zod.boolean(),
+  "checked": zod.boolean(),
+  "completed": zod.boolean(),
+  "needsReplacement": zod.boolean(),
+  "isFixed": zod.boolean(),
+  "note": zod.string().nullable()
+})),
+  "needsDiapers": zod.boolean(),
+  "lastDiaperDeliveryDate": zod.coerce.date().nullable(),
+  "needsClothing": zod.boolean(),
+  "openItemCount": zod.number()
+})
+
+
+/**
+ * @summary Add a daycare checklist item
+ */
+
+
+
+export const CreateDaycareItemBody = zod.object({
+  "name": zod.string().min(1),
+  "category": zod.enum(['essential', 'clothing', 'other']),
+  "recurring": zod.boolean().optional(),
+  "note": zod.string().nullish()
+})
+
+export const CreateDaycareItemResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "category": zod.enum(['essential', 'clothing', 'other']),
+  "recurring": zod.boolean(),
+  "checked": zod.boolean(),
+  "completed": zod.boolean(),
+  "needsReplacement": zod.boolean(),
+  "isFixed": zod.boolean(),
+  "note": zod.string().nullable()
+})
+
+
+/**
+ * @summary Update a daycare checklist item
+ */
+export const UpdateDaycareItemParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+
+
+
+export const UpdateDaycareItemBody = zod.object({
+  "name": zod.string().min(1).optional(),
+  "category": zod.enum(['essential', 'clothing', 'other']).optional(),
+  "recurring": zod.boolean().optional(),
+  "checked": zod.boolean().optional(),
+  "needsReplacement": zod.boolean().optional(),
+  "note": zod.string().nullish()
+})
+
+export const UpdateDaycareItemResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "category": zod.enum(['essential', 'clothing', 'other']),
+  "recurring": zod.boolean(),
+  "checked": zod.boolean(),
+  "completed": zod.boolean(),
+  "needsReplacement": zod.boolean(),
+  "isFixed": zod.boolean(),
+  "note": zod.string().nullable()
+})
+
+
+/**
+ * @summary Remove a daycare checklist item
+ */
+export const DeleteDaycareItemParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeleteDaycareItemResponse = zod.void()
+
+
+/**
+ * @summary Update diaper and daycare supply status
+ */
+export const UpdateDaycareStatusBody = zod.object({
+  "needsDiapers": zod.boolean().optional(),
+  "lastDiaperDeliveryDate": zod.coerce.date().nullish()
+})
+
+export const UpdateDaycareStatusResponse = zod.object({
+  "date": zod.coerce.date(),
+  "childName": zod.string(),
+  "daycareName": zod.string().nullable(),
+  "items": zod.array(zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "category": zod.enum(['essential', 'clothing', 'other']),
+  "recurring": zod.boolean(),
+  "checked": zod.boolean(),
+  "completed": zod.boolean(),
+  "needsReplacement": zod.boolean(),
+  "isFixed": zod.boolean(),
+  "note": zod.string().nullable()
+})),
+  "needsDiapers": zod.boolean(),
+  "lastDiaperDeliveryDate": zod.coerce.date().nullable(),
+  "needsClothing": zod.boolean(),
+  "openItemCount": zod.number()
+})
+
+
+/**
+ * @summary List clothes kept at daycare
+ */
+export const ListDaycareClothesResponseItem = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "size": zod.string().nullish(),
+  "season": zod.string().nullish(),
+  "location": zod.string().nullish(),
+  "registeredAt": zod.coerce.date().nullable()
+})
+export const ListDaycareClothesResponse = zod.array(ListDaycareClothesResponseItem)
+
+
+/**
+ * @summary Register clothing kept at daycare
+ */
+
+
+
+export const CreateDaycareClothingBody = zod.object({
+  "name": zod.string().min(1),
+  "size": zod.string().nullish(),
+  "season": zod.string().nullish(),
+  "location": zod.string().nullish(),
+  "registeredAt": zod.coerce.date().optional()
+})
+
+export const CreateDaycareClothingResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "size": zod.string().nullish(),
+  "season": zod.string().nullish(),
+  "location": zod.string().nullish(),
+  "registeredAt": zod.coerce.date().nullable()
+})
+
+
+/**
+ * @summary Update clothing kept at daycare
+ */
+export const UpdateDaycareClothingParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+
+
+
+export const UpdateDaycareClothingBody = zod.object({
+  "name": zod.string().min(1).optional(),
+  "size": zod.string().nullish(),
+  "season": zod.string().nullish(),
+  "location": zod.string().nullish(),
+  "registeredAt": zod.coerce.date().nullish()
+})
+
+export const UpdateDaycareClothingResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "size": zod.string().nullish(),
+  "season": zod.string().nullish(),
+  "location": zod.string().nullish(),
+  "registeredAt": zod.coerce.date().nullable()
+})
+
+
+/**
+ * @summary Remove clothing kept at daycare
+ */
+export const DeleteDaycareClothingParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeleteDaycareClothingResponse = zod.void()
+
+

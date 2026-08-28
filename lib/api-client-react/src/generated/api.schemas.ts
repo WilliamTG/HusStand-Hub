@@ -73,6 +73,123 @@ export interface DashboardSummary {
   nurseryStatus: NurseryStatus;
 }
 
+export type DaycareItemCategory = typeof DaycareItemCategory[keyof typeof DaycareItemCategory];
+
+
+export const DaycareItemCategory = {
+  essential: 'essential',
+  clothing: 'clothing',
+  other: 'other',
+} as const;
+
+export interface DaycareItem {
+  id: number;
+  name: string;
+  category: DaycareItemCategory;
+  recurring: boolean;
+  checked: boolean;
+  completed: boolean;
+  needsReplacement: boolean;
+  isFixed: boolean;
+  /** @nullable */
+  note: string | null;
+}
+
+export interface DaycareSummary {
+  date: string;
+  childName: string;
+  /** @nullable */
+  daycareName: string | null;
+  items: DaycareItem[];
+  needsDiapers: boolean;
+  /** @nullable */
+  lastDiaperDeliveryDate: string | null;
+  needsClothing: boolean;
+  openItemCount: number;
+}
+
+export interface DaycareClothing {
+  id: number;
+  name: string;
+  /** @nullable */
+  size?: string | null;
+  /** @nullable */
+  season?: string | null;
+  /** @nullable */
+  location?: string | null;
+  /** @nullable */
+  registeredAt: string | null;
+}
+
+export interface DaycareClothingInput {
+  /** @minLength 1 */
+  name: string;
+  /** @nullable */
+  size?: string | null;
+  /** @nullable */
+  season?: string | null;
+  /** @nullable */
+  location?: string | null;
+  registeredAt?: string;
+}
+
+export interface DaycareClothingUpdate {
+  /** @minLength 1 */
+  name?: string;
+  /** @nullable */
+  size?: string | null;
+  /** @nullable */
+  season?: string | null;
+  /** @nullable */
+  location?: string | null;
+  /** @nullable */
+  registeredAt?: string | null;
+}
+
+export type DaycareItemInputCategory = typeof DaycareItemInputCategory[keyof typeof DaycareItemInputCategory];
+
+
+export const DaycareItemInputCategory = {
+  essential: 'essential',
+  clothing: 'clothing',
+  other: 'other',
+} as const;
+
+export interface DaycareItemInput {
+  /** @minLength 1 */
+  name: string;
+  category: DaycareItemInputCategory;
+  recurring?: boolean;
+  /** @nullable */
+  note?: string | null;
+}
+
+export type DaycareItemUpdateCategory = typeof DaycareItemUpdateCategory[keyof typeof DaycareItemUpdateCategory];
+
+
+export const DaycareItemUpdateCategory = {
+  essential: 'essential',
+  clothing: 'clothing',
+  other: 'other',
+} as const;
+
+export interface DaycareItemUpdate {
+  /** @minLength 1 */
+  name?: string;
+  category?: DaycareItemUpdateCategory;
+  recurring?: boolean;
+  checked?: boolean;
+  needsReplacement?: boolean;
+  /** @nullable */
+  note?: string | null;
+}
+
+export interface DaycareStatusUpdate {
+  needsDiapers?: boolean;
+  /** @nullable */
+  lastDiaperDeliveryDate?: string | null;
+}
+
 export type MealPlanInputMealType = typeof MealPlanInputMealType[keyof typeof MealPlanInputMealType];
 
 
@@ -174,6 +291,49 @@ export interface RecipeUpdate {
   ingredients?: string[];
   steps?: string[];
   favorite?: boolean;
+}
+
+export interface ShoppingItem {
+  id: number;
+  name: string;
+  /** @nullable */
+  quantity: string | null;
+  category: string;
+  completed: boolean;
+  /** @nullable */
+  sourceRecipeId: number | null;
+  sortOrder: number;
+}
+
+export interface ShoppingItemInput {
+  /** @minLength 1 */
+  name: string;
+  /** @nullable */
+  quantity?: string | null;
+  /** @minLength 1 */
+  category?: string;
+  sortOrder?: number;
+}
+
+export interface ShoppingItemUpdate {
+  /** @minLength 1 */
+  name?: string;
+  /** @nullable */
+  quantity?: string | null;
+  /** @minLength 1 */
+  category?: string;
+  completed?: boolean;
+  sortOrder?: number;
+}
+
+export interface WeekImportInput {
+  weekStart: string;
+}
+
+export interface WeekImportResult {
+  added: number;
+  skipped: number;
+  message: string;
 }
 
 export type ListMealPlansParams = {

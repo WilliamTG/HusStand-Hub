@@ -10,6 +10,8 @@ export const childrenTable = sqliteTable("children", {
   birthDate: text("birth_date"),
   daycareName: text("daycare_name"),
   active: integer("active", { mode: "boolean" }).notNull().default(true),
+  needsDiapers: integer("needs_diapers", { mode: "boolean" }).notNull().default(false),
+  lastDiaperDeliveryDate: text("last_diaper_delivery_date").default("2026-08-28"),
 });
 
 export const daycareItemsTable = sqliteTable("daycare_items", {
@@ -18,7 +20,11 @@ export const daycareItemsTable = sqliteTable("daycare_items", {
     .notNull()
     .references(() => childrenTable.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
-  category: text("category").notNull().default("Utstyr"),
+  category: text("category").notNull().default("other"),
+  itemType: text("item_type").notNull().default("other"),
+  recurring: integer("recurring", { mode: "boolean" }).notNull().default(true),
+  checkedOn: text("checked_on"),
+  completed: integer("completed", { mode: "boolean" }).notNull().default(false),
   status: text("status").notNull().default("ready"),
   note: text("note"),
   updatedAt: text("updated_at").notNull().default("CURRENT_TIMESTAMP"),
@@ -33,5 +39,6 @@ export const clothingItemsTable = sqliteTable("clothing_items", {
   size: text("size"),
   season: text("season"),
   location: text("location"),
+  registeredAt: text("registered_at"),
   active: integer("active", { mode: "boolean" }).notNull().default(true),
 });

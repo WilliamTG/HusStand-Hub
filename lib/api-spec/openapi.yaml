@@ -16,6 +16,10 @@ tags:
     description: Weekly meal planning
   - name: recipes
     description: Recipe management
+  - name: shopping
+    description: Active household shopping list
+  - name: daycare
+    description: Daycare morning checklist and supplies
 paths:
   /healthz:
     get:
@@ -203,6 +207,233 @@ paths:
           description: Recipe deleted
         "404":
           description: Recipe not found
+  /shopping-items:
+    get:
+      operationId: listShoppingItems
+      tags: [shopping]
+      summary: List items in the active shopping list
+      responses:
+        "200":
+          description: Shopping list items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ShoppingItem"
+    post:
+      operationId: createShoppingItem
+      tags: [shopping]
+      summary: Add an item to the active shopping list
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ShoppingItemInput"
+      responses:
+        "201":
+          description: Created shopping item
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShoppingItem"
+  /shopping-items/import-week:
+    post:
+      operationId: importWeeklyIngredients
+      tags: [shopping]
+      summary: Add linked recipe ingredients from a meal-plan week
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WeekImportInput"
+      responses:
+        "200":
+          description: Import result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WeekImportResult"
+  /shopping-items/{id}:
+    patch:
+      operationId: updateShoppingItem
+      tags: [shopping]
+      summary: Update a shopping item
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ShoppingItemUpdate"
+      responses:
+        "200":
+          description: Updated shopping item
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShoppingItem"
+        "404":
+          description: Shopping item not found
+    delete:
+      operationId: deleteShoppingItem
+      tags: [shopping]
+      summary: Remove a shopping item
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "204":
+          description: Shopping item removed
+        "404":
+          description: Shopping item not found
+  /daycare:
+    get:
+      operationId: getDaycare
+      tags: [daycare]
+      summary: Get the daycare morning checklist
+      responses:
+        "200":
+          description: Daycare morning checklist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DaycareSummary"
+  /daycare-items:
+    post:
+      operationId: createDaycareItem
+      tags: [daycare]
+      summary: Add a daycare checklist item
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DaycareItemInput"
+      responses:
+        "201":
+          description: Created daycare item
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DaycareItem"
+  /daycare-items/{id}:
+    patch:
+      operationId: updateDaycareItem
+      tags: [daycare]
+      summary: Update a daycare checklist item
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DaycareItemUpdate"
+      responses:
+        "200":
+          description: Updated daycare item
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DaycareItem"
+        "404":
+          description: Daycare item not found
+    delete:
+      operationId: deleteDaycareItem
+      tags: [daycare]
+      summary: Remove a daycare checklist item
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "204":
+          description: Daycare item removed
+        "404":
+          description: Daycare item not found
+  /daycare-status:
+    patch:
+      operationId: updateDaycareStatus
+      tags: [daycare]
+      summary: Update diaper and daycare supply status
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DaycareStatusUpdate"
+      responses:
+        "200":
+          description: Updated daycare summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DaycareSummary"
+  /daycare-clothes:
+    get:
+      operationId: listDaycareClothes
+      tags: [daycare]
+      summary: List clothes kept at daycare
+      responses:
+        "200":
+          description: Clothes and spare changes kept at daycare
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DaycareClothing"
+    post:
+      operationId: createDaycareClothing
+      tags: [daycare]
+      summary: Register clothing kept at daycare
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DaycareClothingInput"
+      responses:
+        "201":
+          description: Registered daycare clothing
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DaycareClothing"
+  /daycare-clothes/{id}:
+    patch:
+      operationId: updateDaycareClothing
+      tags: [daycare]
+      summary: Update clothing kept at daycare
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DaycareClothingUpdate"
+      responses:
+        "200":
+          description: Updated daycare clothing
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DaycareClothing"
+        "404":
+          description: Daycare clothing not found
+    delete:
+      operationId: deleteDaycareClothing
+      tags: [daycare]
+      summary: Remove clothing kept at daycare
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "204":
+          description: Daycare clothing removed
+        "404":
+          description: Daycare clothing not found
 components:
   parameters:
     Id:
@@ -264,6 +495,140 @@ components:
         tone:
           type: string
           enum: [ok, attention, neutral]
+    DaycareItem:
+      type: object
+      required: [id, name, category, recurring, checked, completed, needsReplacement, isFixed, note]
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+        category:
+          type: string
+          enum: [essential, clothing, other]
+        recurring:
+          type: boolean
+        checked:
+          type: boolean
+        completed:
+          type: boolean
+        needsReplacement:
+          type: boolean
+        isFixed:
+          type: boolean
+        note:
+          type: [string, "null"]
+    DaycareSummary:
+      type: object
+      required: [date, childName, daycareName, items, needsDiapers, lastDiaperDeliveryDate, needsClothing, openItemCount]
+      properties:
+        date:
+          type: string
+          format: date
+        childName:
+          type: string
+        daycareName:
+          type: [string, "null"]
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/DaycareItem"
+        needsDiapers:
+          type: boolean
+        lastDiaperDeliveryDate:
+          type: [string, "null"]
+          format: date
+        needsClothing:
+          type: boolean
+        openItemCount:
+          type: number
+    DaycareClothing:
+      type: object
+      required: [id, name, registeredAt]
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+        size:
+          type: ["string", "null"]
+        season:
+          type: ["string", "null"]
+        location:
+          type: ["string", "null"]
+        registeredAt:
+          type: ["string", "null"]
+          format: date
+    DaycareClothingInput:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        size:
+          type: ["string", "null"]
+        season:
+          type: ["string", "null"]
+        location:
+          type: ["string", "null"]
+        registeredAt:
+          type: string
+          format: date
+    DaycareClothingUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        size:
+          type: ["string", "null"]
+        season:
+          type: ["string", "null"]
+        location:
+          type: ["string", "null"]
+        registeredAt:
+          type: ["string", "null"]
+          format: date
+    DaycareItemInput:
+      type: object
+      required: [name, category]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        category:
+          type: string
+          enum: [essential, clothing, other]
+        recurring:
+          type: boolean
+        note:
+          type: [string, "null"]
+    DaycareItemUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        category:
+          type: string
+          enum: [essential, clothing, other]
+        recurring:
+          type: boolean
+        checked:
+          type: boolean
+        needsReplacement:
+          type: boolean
+        note:
+          type: [string, "null"]
+    DaycareStatusUpdate:
+      type: object
+      properties:
+        needsDiapers:
+          type: boolean
+        lastDiaperDeliveryDate:
+          type: [string, "null"]
+          format: date
     MealPlan:
       type: object
       required: [id, date, dayLabel, title, mealType, status]
@@ -407,4 +772,68 @@ components:
             type: string
         favorite:
           type: boolean
+    ShoppingItem:
+      type: object
+      required: [id, name, quantity, category, completed, sourceRecipeId, sortOrder]
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+        quantity:
+          type: [string, "null"]
+        category:
+          type: string
+        completed:
+          type: boolean
+        sourceRecipeId:
+          type: [number, "null"]
+        sortOrder:
+          type: number
+    ShoppingItemInput:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        quantity:
+          type: [string, "null"]
+        category:
+          type: string
+          minLength: 1
+        sortOrder:
+          type: number
+    ShoppingItemUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        quantity:
+          type: [string, "null"]
+        category:
+          type: string
+          minLength: 1
+        completed:
+          type: boolean
+        sortOrder:
+          type: number
+    WeekImportInput:
+      type: object
+      required: [weekStart]
+      properties:
+        weekStart:
+          type: string
+          format: date
+    WeekImportResult:
+      type: object
+      required: [added, skipped, message]
+      properties:
+        added:
+          type: number
+        skipped:
+          type: number
+        message:
+          type: string
 
