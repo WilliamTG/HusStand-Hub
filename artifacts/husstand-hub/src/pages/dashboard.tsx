@@ -147,12 +147,16 @@ export default function Dashboard() {
         <div className="md:col-span-4 space-y-6 flex flex-col">
           
           {/* Nursery Status */}
-          <Card className={cn(
-            "border-none",
-            dashboard.nurseryStatus.tone === "ok" ? "bg-primary/10 text-primary-foreground" :
-            dashboard.nurseryStatus.tone === "attention" ? "bg-accent/10 text-accent-foreground" :
-            "bg-secondary"
-          )}>
+          <Card
+            className={cn(
+              "border-none cursor-pointer transition-transform hover:scale-[1.02] active:scale-95 shadow-md hover:shadow-lg",
+              dashboard.nurseryStatus.tone === "ok" ? "bg-primary/10 text-primary-foreground" :
+              dashboard.nurseryStatus.tone === "attention" ? "bg-accent/10 text-accent-foreground" :
+              "bg-secondary"
+            )}
+            onClick={() => setLocation("/daycare")}
+            data-testid="link-dashboard-daycare"
+          >
             <CardHeader className="pb-2">
               <div className="flex items-center gap-3 mb-2">
                 <div className="p-2 bg-background/50 rounded-xl">

@@ -4,6 +4,7 @@ import dashboardRouter from "./dashboard";
 import mealPlansRouter from "./meal-plans";
 import recipesRouter from "./recipes";
 import shoppingRouter from "./shopping";
+import daycareRouter from "./daycare";
 
 const router: IRouter = Router();
 
@@ -12,5 +13,6 @@ router.use(dashboardRouter);
 router.use(mealPlansRouter);
 router.use(recipesRouter);
 router.use(shoppingRouter);
+router.use(daycareRouter);
 
 export default router;

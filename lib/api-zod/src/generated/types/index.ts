@@ -7,6 +7,14 @@
  */
 
 export * from './dashboardSummary';
+export * from './daycareItem';
+export * from './daycareItemCategory';
+export * from './daycareItemInput';
+export * from './daycareItemInputCategory';
+export * from './daycareItemUpdate';
+export * from './daycareItemUpdateCategory';
+export * from './daycareStatusUpdate';
+export * from './daycareSummary';
 export * from './healthStatus';
 export * from './listMealPlansParams';
 export * from './listRecipesParams';

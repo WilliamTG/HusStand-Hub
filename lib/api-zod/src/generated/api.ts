@@ -364,3 +364,126 @@ export const DeleteShoppingItemParams = zod.object({
 export const DeleteShoppingItemResponse = zod.void()
 
 
+/**
+ * @summary Get the daycare morning checklist
+ */
+export const GetDaycareResponse = zod.object({
+  "date": zod.coerce.date(),
+  "childName": zod.string(),
+  "daycareName": zod.string().nullable(),
+  "items": zod.array(zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "category": zod.enum(['essential', 'clothing', 'other']),
+  "recurring": zod.boolean(),
+  "checked": zod.boolean(),
+  "completed": zod.boolean(),
+  "needsReplacement": zod.boolean(),
+  "isFixed": zod.boolean(),
+  "note": zod.string().nullable()
+})),
+  "needsDiapers": zod.boolean(),
+  "lastDiaperDeliveryDate": zod.coerce.date().nullable(),
+  "needsClothing": zod.boolean(),
+  "openItemCount": zod.number()
+})
+
+
+/**
+ * @summary Add a daycare checklist item
+ */
+
+
+
+export const CreateDaycareItemBody = zod.object({
+  "name": zod.string().min(1),
+  "category": zod.enum(['essential', 'clothing', 'other']),
+  "recurring": zod.boolean().optional(),
+  "note": zod.string().nullish()
+})
+
+export const CreateDaycareItemResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "category": zod.enum(['essential', 'clothing', 'other']),
+  "recurring": zod.boolean(),
+  "checked": zod.boolean(),
+  "completed": zod.boolean(),
+  "needsReplacement": zod.boolean(),
+  "isFixed": zod.boolean(),
+  "note": zod.string().nullable()
+})
+
+
+/**
+ * @summary Update a daycare checklist item
+ */
+export const UpdateDaycareItemParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+
+
+
+export const UpdateDaycareItemBody = zod.object({
+  "name": zod.string().min(1).optional(),
+  "category": zod.enum(['essential', 'clothing', 'other']).optional(),
+  "recurring": zod.boolean().optional(),
+  "checked": zod.boolean().optional(),
+  "needsReplacement": zod.boolean().optional(),
+  "note": zod.string().nullish()
+})
+
+export const UpdateDaycareItemResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "category": zod.enum(['essential', 'clothing', 'other']),
+  "recurring": zod.boolean(),
+  "checked": zod.boolean(),
+  "completed": zod.boolean(),
+  "needsReplacement": zod.boolean(),
+  "isFixed": zod.boolean(),
+  "note": zod.string().nullable()
+})
+
+
+/**
+ * @summary Remove a daycare checklist item
+ */
+export const DeleteDaycareItemParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeleteDaycareItemResponse = zod.void()
+
+
+/**
+ * @summary Update diaper and daycare supply status
+ */
+export const UpdateDaycareStatusBody = zod.object({
+  "needsDiapers": zod.boolean().optional(),
+  "lastDiaperDeliveryDate": zod.coerce.date().nullish()
+})
+
+export const UpdateDaycareStatusResponse = zod.object({
+  "date": zod.coerce.date(),
+  "childName": zod.string(),
+  "daycareName": zod.string().nullable(),
+  "items": zod.array(zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "category": zod.enum(['essential', 'clothing', 'other']),
+  "recurring": zod.boolean(),
+  "checked": zod.boolean(),
+  "completed": zod.boolean(),
+  "needsReplacement": zod.boolean(),
+  "isFixed": zod.boolean(),
+  "note": zod.string().nullable()
+})),
+  "needsDiapers": zod.boolean(),
+  "lastDiaperDeliveryDate": zod.coerce.date().nullable(),
+  "needsClothing": zod.boolean(),
+  "openItemCount": zod.number()
+})
+
+

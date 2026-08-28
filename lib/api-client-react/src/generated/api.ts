@@ -21,6 +21,11 @@ import type {
 
 import type {
   DashboardSummary,
+  DaycareItem,
+  DaycareItemInput,
+  DaycareItemUpdate,
+  DaycareStatusUpdate,
+  DaycareSummary,
   HealthStatus,
   ListMealPlansParams,
   ListRecipesParams,
@@ -1252,5 +1257,367 @@ export const useDeleteShoppingItem = <TError = ErrorType<void>,
         TContext
       > => {
       return useMutation(getDeleteShoppingItemMutationOptions(options));
+    }
+
+export const getGetDaycareUrl = () => {
+
+
+
+
+  return `/api/daycare`
+}
+
+/**
+ * @summary Get the daycare morning checklist
+ */
+export const getDaycare = async ( options?: Parameters<typeof customFetch>[1]): Promise<DaycareSummary> => {
+
+  return customFetch<DaycareSummary>(getGetDaycareUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetDaycareQueryKey = () => {
+    return [
+    `/api/daycare`
+    ] as const;
+    }
+
+
+export const getGetDaycareQueryOptions = <TData = Awaited<ReturnType<typeof getDaycare>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getDaycare>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetDaycareQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getDaycare>>> = ({ signal }) => getDaycare({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getDaycare>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetDaycareQueryResult = NonNullable<Awaited<ReturnType<typeof getDaycare>>>
+export type GetDaycareQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get the daycare morning checklist
+ */
+
+export function useGetDaycare<TData = Awaited<ReturnType<typeof getDaycare>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getDaycare>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetDaycareQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateDaycareItemUrl = () => {
+
+
+
+
+  return `/api/daycare-items`
+}
+
+/**
+ * @summary Add a daycare checklist item
+ */
+export const createDaycareItem = async (daycareItemInput: DaycareItemInput, options?: Parameters<typeof customFetch>[1]): Promise<DaycareItem> => {
+
+  return customFetch<DaycareItem>(getCreateDaycareItemUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(daycareItemInput)
+  }
+);}
+
+
+
+
+
+export const getCreateDaycareItemMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createDaycareItem>>, TError,{data: BodyType<DaycareItemInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createDaycareItem>>, TError,{data: BodyType<DaycareItemInput>}, TContext> => {
+
+const mutationKey = ['createDaycareItem'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createDaycareItem>>, {data: BodyType<DaycareItemInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createDaycareItem(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateDaycareItemMutationResult = NonNullable<Awaited<ReturnType<typeof createDaycareItem>>>
+    export type CreateDaycareItemMutationBody = BodyType<DaycareItemInput>
+    export type CreateDaycareItemMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Add a daycare checklist item
+ */
+export const useCreateDaycareItem = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createDaycareItem>>, TError,{data: BodyType<DaycareItemInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createDaycareItem>>,
+        TError,
+        {data: BodyType<DaycareItemInput>},
+        TContext
+      > => {
+      return useMutation(getCreateDaycareItemMutationOptions(options));
+    }
+
+export const getUpdateDaycareItemUrl = (id: number,) => {
+
+
+
+
+  return `/api/daycare-items/${id}`
+}
+
+/**
+ * @summary Update a daycare checklist item
+ */
+export const updateDaycareItem = async (id: number,
+    daycareItemUpdate: DaycareItemUpdate, options?: Parameters<typeof customFetch>[1]): Promise<DaycareItem> => {
+
+  return customFetch<DaycareItem>(getUpdateDaycareItemUrl(id),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(daycareItemUpdate)
+  }
+);}
+
+
+
+
+
+export const getUpdateDaycareItemMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateDaycareItem>>, TError,{id: number;data: BodyType<DaycareItemUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateDaycareItem>>, TError,{id: number;data: BodyType<DaycareItemUpdate>}, TContext> => {
+
+const mutationKey = ['updateDaycareItem'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateDaycareItem>>, {id: number;data: BodyType<DaycareItemUpdate>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateDaycareItem(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateDaycareItemMutationResult = NonNullable<Awaited<ReturnType<typeof updateDaycareItem>>>
+    export type UpdateDaycareItemMutationBody = BodyType<DaycareItemUpdate>
+    export type UpdateDaycareItemMutationError = ErrorType<void>
+
+    /**
+ * @summary Update a daycare checklist item
+ */
+export const useUpdateDaycareItem = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateDaycareItem>>, TError,{id: number;data: BodyType<DaycareItemUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateDaycareItem>>,
+        TError,
+        {id: number;data: BodyType<DaycareItemUpdate>},
+        TContext
+      > => {
+      return useMutation(getUpdateDaycareItemMutationOptions(options));
+    }
+
+export const getDeleteDaycareItemUrl = (id: number,) => {
+
+
+
+
+  return `/api/daycare-items/${id}`
+}
+
+/**
+ * @summary Remove a daycare checklist item
+ */
+export const deleteDaycareItem = async (id: number, options?: Parameters<typeof customFetch>[1]): Promise<void> => {
+
+  return customFetch<void>(getDeleteDaycareItemUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteDaycareItemMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteDaycareItem>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteDaycareItem>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['deleteDaycareItem'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteDaycareItem>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  deleteDaycareItem(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteDaycareItemMutationResult = NonNullable<Awaited<ReturnType<typeof deleteDaycareItem>>>
+
+    export type DeleteDaycareItemMutationError = ErrorType<void>
+
+    /**
+ * @summary Remove a daycare checklist item
+ */
+export const useDeleteDaycareItem = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteDaycareItem>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteDaycareItem>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getDeleteDaycareItemMutationOptions(options));
+    }
+
+export const getUpdateDaycareStatusUrl = () => {
+
+
+
+
+  return `/api/daycare-status`
+}
+
+/**
+ * @summary Update diaper and daycare supply status
+ */
+export const updateDaycareStatus = async (daycareStatusUpdate: DaycareStatusUpdate, options?: Parameters<typeof customFetch>[1]): Promise<DaycareSummary> => {
+
+  return customFetch<DaycareSummary>(getUpdateDaycareStatusUrl(),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(daycareStatusUpdate)
+  }
+);}
+
+
+
+
+
+export const getUpdateDaycareStatusMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateDaycareStatus>>, TError,{data: BodyType<DaycareStatusUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateDaycareStatus>>, TError,{data: BodyType<DaycareStatusUpdate>}, TContext> => {
+
+const mutationKey = ['updateDaycareStatus'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateDaycareStatus>>, {data: BodyType<DaycareStatusUpdate>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  updateDaycareStatus(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateDaycareStatusMutationResult = NonNullable<Awaited<ReturnType<typeof updateDaycareStatus>>>
+    export type UpdateDaycareStatusMutationBody = BodyType<DaycareStatusUpdate>
+    export type UpdateDaycareStatusMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Update diaper and daycare supply status
+ */
+export const useUpdateDaycareStatus = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateDaycareStatus>>, TError,{data: BodyType<DaycareStatusUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateDaycareStatus>>,
+        TError,
+        {data: BodyType<DaycareStatusUpdate>},
+        TContext
+      > => {
+      return useMutation(getUpdateDaycareStatusMutationOptions(options));
     }
 

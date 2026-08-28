@@ -13,6 +13,63 @@ const currentWeekDates = () => {
   });
 };
 
+const hasColumn = (sqlite: DatabaseSync, tableName: string, columnName: string): boolean => {
+  const columns = sqlite.prepare(`PRAGMA table_info(${tableName})`).all() as Array<{ name: string }>;
+  return columns.some((column) => column.name === columnName);
+};
+
+const addColumnIfMissing = (
+  sqlite: DatabaseSync,
+  tableName: string,
+  columnName: string,
+  definition: string,
+): void => {
+  if (!hasColumn(sqlite, tableName, columnName)) {
+    sqlite.exec(`ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${definition}`);
+  }
+};
+
+const ensureDaycareDefaults = (sqlite: DatabaseSync, childId: number): void => {
+  const insertDefault = sqlite.prepare(`
+    INSERT INTO daycare_items (child_id, name, category, item_type, recurring, completed, status, note)
+    SELECT ?, ?, ?, ?, ?, ?, 'ready', ?
+    WHERE NOT EXISTS (
+      SELECT 1 FROM daycare_items WHERE child_id = ? AND lower(name) = lower(?)
+    )
+  `);
+
+  [
+    ["Matpakke", "essential", "essential", 1, 0, null],
+    ["Vogn", "essential", "essential", 1, 0, null],
+    ["Myggnetting", "essential", "essential", 1, 0, null],
+    ["Regntrekk", "essential", "essential", 1, 0, null],
+    ["Skiftetøy", "clothing", "clothing_stock", 0, 1, "Ha ett komplett skift liggende i barnehagen"],
+  ].forEach(([name, category, itemType, recurring, completed, note]) => {
+    insertDefault.run(
+      childId,
+      name,
+      category,
+      itemType,
+      recurring,
+      completed,
+      note,
+      childId,
+      name,
+    );
+  });
+
+  sqlite
+    .prepare(`
+      UPDATE daycare_items
+      SET category = 'clothing',
+          item_type = 'clothing_stock',
+          recurring = 0,
+          completed = CASE WHEN status = 'needs_replacement' THEN 0 ELSE 1 END
+      WHERE child_id = ? AND lower(name) = lower('Skiftetøy')
+    `)
+    .run(childId);
+};
+
 export function initializeDatabase(sqlite: DatabaseSync): void {
   sqlite.exec(`
     CREATE TABLE IF NOT EXISTS households (
@@ -93,14 +150,20 @@ export function initializeDatabase(sqlite: DatabaseSync): void {
       name TEXT NOT NULL,
       birth_date TEXT,
       daycare_name TEXT,
-      active INTEGER NOT NULL DEFAULT 1
+      active INTEGER NOT NULL DEFAULT 1,
+      needs_diapers INTEGER NOT NULL DEFAULT 0,
+      last_diaper_delivery_date TEXT DEFAULT '2026-08-28'
     );
 
     CREATE TABLE IF NOT EXISTS daycare_items (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       child_id INTEGER NOT NULL REFERENCES children(id) ON DELETE CASCADE,
       name TEXT NOT NULL,
-      category TEXT NOT NULL DEFAULT 'Utstyr',
+      category TEXT NOT NULL DEFAULT 'other',
+      item_type TEXT NOT NULL DEFAULT 'other',
+      recurring INTEGER NOT NULL DEFAULT 1,
+      checked_on TEXT,
+      completed INTEGER NOT NULL DEFAULT 0,
       status TEXT NOT NULL DEFAULT 'ready',
       note TEXT,
       updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -138,11 +201,31 @@ export function initializeDatabase(sqlite: DatabaseSync): void {
     );
   `);
 
+  addColumnIfMissing(sqlite, "children", "needs_diapers", "INTEGER NOT NULL DEFAULT 0");
+  addColumnIfMissing(sqlite, "children", "last_diaper_delivery_date", "TEXT DEFAULT '2026-08-28'");
+  addColumnIfMissing(sqlite, "daycare_items", "item_type", "TEXT NOT NULL DEFAULT 'other'");
+  addColumnIfMissing(sqlite, "daycare_items", "recurring", "INTEGER NOT NULL DEFAULT 1");
+  addColumnIfMissing(sqlite, "daycare_items", "checked_on", "TEXT");
+  addColumnIfMissing(sqlite, "daycare_items", "completed", "INTEGER NOT NULL DEFAULT 0");
+  sqlite.exec(`
+    UPDATE daycare_items
+    SET item_type = CASE
+      WHEN lower(category) IN ('klær', 'clothing') THEN 'clothing'
+      WHEN lower(category) IN ('fast', 'essential') THEN 'essential'
+      ELSE 'other'
+    END
+    WHERE item_type = 'other' AND lower(category) IN ('klær', 'clothing', 'fast', 'essential');
+  `);
+
   const existing = sqlite
     .prepare("SELECT id FROM households ORDER BY id LIMIT 1")
     .get() as { id: number } | undefined;
 
   if (existing) {
+    const child = sqlite
+      .prepare("SELECT id FROM children WHERE active = 1 ORDER BY id LIMIT 1")
+      .get() as { id: number } | undefined;
+    if (child) ensureDaycareDefaults(sqlite, child.id);
     return;
   }
 
@@ -248,9 +331,9 @@ export function initializeDatabase(sqlite: DatabaseSync): void {
   ].forEach((item, index) => insertItem.run(list.id, ...item, index));
 
   const child = sqlite
-    .prepare("INSERT INTO children (household_id, name, daycare_name) VALUES (?, ?, ?) RETURNING id")
-    .get(household.id, "Barnet", "Barnehagen") as { id: number };
-  sqlite
-    .prepare("INSERT INTO daycare_items (child_id, name, category, status, note) VALUES (?, ?, ?, ?, ?)")
-    .run(child.id, "Skiftetøy", "Klær", "ready", "Kontrollert i dag");
+    .prepare(
+      "INSERT INTO children (household_id, name, daycare_name, last_diaper_delivery_date) VALUES (?, ?, ?, ?) RETURNING id",
+    )
+    .get(household.id, "Barnet", "Barnehagen", "2026-08-28") as { id: number };
+  ensureDaycareDefaults(sqlite, child.id);
 }

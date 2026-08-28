@@ -17,6 +17,7 @@ import MealPlanPage from '@/pages/meal-plan';
 import RecipesPage from '@/pages/recipes';
 import RecipeEditPage from '@/pages/recipe-edit';
 import ShoppingPage from '@/pages/shopping';
+import DaycarePage from '@/pages/daycare';
 
 const queryClient = new QueryClient();
 
@@ -26,6 +27,7 @@ function Router() {
       <Shell>
         <Switch>
           <Route path="/" component={Dashboard} />
+          <Route path="/daycare" component={DaycarePage} />
           <Route path="/meal-plan" component={MealPlanPage} />
           <Route path="/recipes" component={RecipesPage} />
           <Route path="/recipes/:id" component={RecipeEditPage} />
